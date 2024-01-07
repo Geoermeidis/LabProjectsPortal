@@ -9,5 +9,6 @@ namespace LabProjectsPortal.Models
         [Key]
         public Guid Guid { get; set; } = Guid.NewGuid();
         public string Title { get; set; } = null!;
+
     }
 }
