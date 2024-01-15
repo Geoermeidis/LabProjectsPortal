@@ -28,7 +28,7 @@ namespace LabProjectsPortal.Controllers
         }
 
         // GET: ApplicationUsers/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null || _context.Users == null)
             {
@@ -60,7 +60,6 @@ namespace LabProjectsPortal.Controllers
         {
             if (ModelState.IsValid)
             {
-                applicationUser.Id = Guid.NewGuid();
                 _context.Add(applicationUser);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -69,7 +68,7 @@ namespace LabProjectsPortal.Controllers
         }
 
         // GET: ApplicationUsers/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null || _context.Users == null)
             {
@@ -89,7 +88,7 @@ namespace LabProjectsPortal.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,FirstName,LastName,Email,PasswordHash,PasswordSalt,CreatedAt")] ApplicationUser applicationUser)
+        public async Task<IActionResult> Edit(string? id, [Bind("Id,FirstName,LastName,Email,PasswordHash,PasswordSalt,CreatedAt")] ApplicationUser applicationUser)
         {
             if (id != applicationUser.Id)
             {
@@ -120,7 +119,7 @@ namespace LabProjectsPortal.Controllers
         }
 
         // GET: ApplicationUsers/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(string? id)
         {
             if (id == null || _context.Users == null)
             {
@@ -140,7 +139,7 @@ namespace LabProjectsPortal.Controllers
         // POST: ApplicationUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             if (_context.Users == null)
             {
@@ -156,7 +155,7 @@ namespace LabProjectsPortal.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ApplicationUserExists(Guid id)
+        private bool ApplicationUserExists(string id)
         {
           return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
         }

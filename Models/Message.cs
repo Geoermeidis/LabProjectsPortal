@@ -7,7 +7,7 @@ namespace LabProjectsPortal.Models
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Content { get; set; } = string.Empty;
-        public Guid SenderId { get; set; }
+        public string SenderId { get; set; }
         public Guid ConversationId { get; set; }
         [Editable(false)]
         public DateTimeOffset SentAt { get; set; } = DateTimeOffset.Now;

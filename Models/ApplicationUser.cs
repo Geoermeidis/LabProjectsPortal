@@ -1,13 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualBasic;
 using System.ComponentModel.DataAnnotations;
 
 namespace LabProjectsPortal.Models
 {
-    public class ApplicationUser
+    public class ApplicationUser: IdentityUser
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
