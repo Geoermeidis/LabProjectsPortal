@@ -28,17 +28,18 @@ namespace LabProjectsPortal.Data
 
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.Courses)
-                .WithMany();
+                .WithMany()
+                ;
 
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.UserSentContacts)
                 .WithOne(c => c.Sender)
-                .HasForeignKey(c => c.SenderId);
+                .HasForeignKey(c => c.SenderId).IsRequired(false);
 
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.UserReceivedContacts)
                 .WithOne(c => c.Receiver)
-                .HasForeignKey(c => c.ReceiverId);
+                .HasForeignKey(c => c.ReceiverId).IsRequired(false);
 
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.Conversations)
@@ -47,12 +48,12 @@ namespace LabProjectsPortal.Data
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.Posts)
                 .WithOne(p => p.Publisher)
-                .HasForeignKey(c => c.PublisherId);
+                .HasForeignKey(c => c.PublisherId).IsRequired(false);
 
             modelBuilder.Entity<Conversation>()
                 .HasMany(c => c.Messages)
                 .WithOne(p => p.Conversation)
-                .HasForeignKey(p => p.ConversationId);
+                .HasForeignKey(p => p.ConversationId).IsRequired(false);
 
             modelBuilder.Entity<Conversation>()
                 .HasOne(c => c.Category)
@@ -69,13 +70,13 @@ namespace LabProjectsPortal.Data
             modelBuilder.Entity<Contact>()
                 .HasOne(c => c.Sender)
                 .WithMany()
-                .HasForeignKey(c => c.SenderId)
+                .HasForeignKey(c => c.SenderId).IsRequired(false)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Contact>()
                 .HasOne(c => c.Receiver)
                 .WithMany()
-                .HasForeignKey(c => c.ReceiverId)
+                .HasForeignKey(c => c.ReceiverId).IsRequired(false)
                 .OnDelete(DeleteBehavior.NoAction);
         }
 

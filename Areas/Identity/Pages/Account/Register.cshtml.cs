@@ -114,7 +114,7 @@ namespace LabProjectsPortal.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-              //  user.Email = Input.Email;
+                //user.Email = Input.Email;
                 user.FirstName = "adasa";
                 user.LastName = "dasad";
                 user.CreatedAt = DateTimeOffset.Now;

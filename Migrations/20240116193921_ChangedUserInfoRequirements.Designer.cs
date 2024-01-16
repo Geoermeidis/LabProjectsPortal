@@ -4,6 +4,7 @@ using LabProjectsPortal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LabProjectsPortal.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240116193921_ChangedUserInfoRequirements")]
+    partial class ChangedUserInfoRequirements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,7 +82,7 @@ namespace LabProjectsPortal.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset?>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
@@ -183,9 +186,11 @@ namespace LabProjectsPortal.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ReceiverId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("SenderId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -256,7 +261,7 @@ namespace LabProjectsPortal.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CategoryGuid")
+                    b.Property<Guid>("CategoryGuid")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CategoryId")
@@ -268,6 +273,7 @@ namespace LabProjectsPortal.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PublisherId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset>("UploadedAt")
@@ -491,12 +497,14 @@ namespace LabProjectsPortal.Migrations
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Receiver");
 
@@ -518,7 +526,9 @@ namespace LabProjectsPortal.Migrations
                 {
                     b.HasOne("LabProjectsPortal.Models.Conversation", "Conversation")
                         .WithMany("Messages")
-                        .HasForeignKey("ConversationId");
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Sender")
                         .WithMany()
@@ -535,11 +545,15 @@ namespace LabProjectsPortal.Migrations
                 {
                     b.HasOne("LabProjectsPortal.Models.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryGuid");
+                        .HasForeignKey("CategoryGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Publisher")
                         .WithMany("Posts")
-                        .HasForeignKey("PublisherId");
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
