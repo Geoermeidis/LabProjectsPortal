@@ -9,8 +9,8 @@ namespace LabProjectsPortal.Models
         [Editable(false)]
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public bool IsAccepted { get; set; } = false;
-        public Guid SenderId { get; set; }
-        public Guid ReceiverId { get; set; }
+        public string SenderId { get; set; }
+        public string ReceiverId { get; set; }
 
         public ApplicationUser Sender { get; set; } = new ApplicationUser();
         public ApplicationUser Receiver { get; set; } = new ApplicationUser();

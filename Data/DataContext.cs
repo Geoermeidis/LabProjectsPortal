@@ -1,17 +1,21 @@
 ﻿using LabProjectsPortal.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabProjectsPortal.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<ApplicationUser>
     {
         public DataContext(DbContextOptions<DataContext> options)
         : base(options)
         {
 
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Hobby>()
             .HasBaseType<Category>();
 
@@ -63,10 +67,10 @@ namespace LabProjectsPortal.Data
                 .WithMany();
 
             modelBuilder.Entity<Contact>()
-        .HasOne(c => c.Sender)
-        .WithMany()
-        .HasForeignKey(c => c.SenderId)
-        .OnDelete(DeleteBehavior.NoAction);
+                .HasOne(c => c.Sender)
+                .WithMany()
+                .HasForeignKey(c => c.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Contact>()
                 .HasOne(c => c.Receiver)

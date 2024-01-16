@@ -9,8 +9,8 @@ namespace LabProjectsPortal.Models
         public string Content { get; set; } = string.Empty;
         [Editable(false)]
         public DateTimeOffset UploadedAt { get; set; } = DateTimeOffset.UtcNow;
-        public Guid PublisherId { get; set; }
-        public Guid CategoryId { get; set; }
+        public string PublisherId { get; set; }
+        public string CategoryId { get; set; }
         public ApplicationUser Publisher { get; set; } = new ApplicationUser();
         public Category Category { get; set; } = new Category();
     }
