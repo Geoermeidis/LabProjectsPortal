@@ -68,10 +68,8 @@ namespace LabProjectsPortal.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Guid", "Discriminator", post.CategoryId);
             ViewData["PublisherId"] = new SelectList(_context.Users, "Id", "Id", post.PublisherId);
-            
             return View(post);
         }
 
