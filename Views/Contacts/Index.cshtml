@@ -1,4 +1,4 @@
-﻿@model IEnumerable<LabProjectsPortal.Models.Contact>
+﻿@model List<string>
 
 @{
     ViewData["Title"] = "Index";
@@ -9,21 +9,16 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<p>
+    <a asp-action="Requests">See your requests</a>
+</p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
+                Email
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsAccepted)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sender)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Receiver)
-            </th>
+
             <th></th>
         </tr>
     </thead>
@@ -31,22 +26,9 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
+                @item
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsAccepted)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sender.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Receiver.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+
         </tr>
 }
     </tbody>

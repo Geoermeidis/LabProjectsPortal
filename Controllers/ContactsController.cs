@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LabProjectsPortal.Data;
 using LabProjectsPortal.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LabProjectsPortal.Controllers
 {
+    [Authorize]
     public class ContactsController : Controller
     {
         private readonly DataContext _context;
@@ -22,154 +25,99 @@ namespace LabProjectsPortal.Controllers
         // GET: Contacts
         public async Task<IActionResult> Index()
         {
-            var dataContext = _context.Contacts.Include(c => c.Receiver).Include(c => c.Sender);
-            return View(await dataContext.ToListAsync());
+            var user = User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (userApp == null)
+                throw new Exception();
+
+            var dataContext = _context.Contacts
+                .Where(c => c.IsAccepted && (c.Sender.Id.Equals(userId) || c.Receiver.Id.Equals(userId)))
+                .Include(c => c.Receiver).Include(c => c.Sender);
+            List<string> contacts = new List<string>();
+            foreach (var c in dataContext)
+            {
+                if (c.SenderId.Equals(userId))
+                    contacts.Add(c.Receiver.Email);
+                else
+                    contacts.Add(c.Sender.Email);
+            }
+            return View(contacts);
         }
 
-        // GET: Contacts/Details/5
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null || _context.Contacts == null)
-            {
-                return NotFound();
-            }
-
-            var contact = await _context.Contacts
-                .Include(c => c.Receiver)
-                .Include(c => c.Sender)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (contact == null)
-            {
-                return NotFound();
-            }
-
-            return View(contact);
-        }
 
         // GET: Contacts/Create
         public IActionResult Create()
         {
-            ViewData["ReceiverId"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+            var user = User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (userApp == null)
+                throw new Exception();
+            var emails = _context.Users.Where(u => !u.Id.Equals(userId)).Select(u => u.Email).ToList();
+            return View(emails);
         }
 
         // POST: Contacts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CreatedAt,IsAccepted,SenderId,ReceiverId")] Contact contact)
+        public async Task<IActionResult> Create(string Email)
         {
-            if (ModelState.IsValid)
+            var user = User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (userApp == null)
+                throw new Exception();
+
+            var receiver = _context.Users.FirstOrDefault(u => u.Email.Equals(Email));
+            if (receiver == null)
+                throw new Exception();
+
+            var contact = new Contact()
             {
-                contact.Id = Guid.NewGuid();
-                _context.Add(contact);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ReceiverId"] = new SelectList(_context.Users, "Id", "Id", contact.ReceiverId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", contact.SenderId);
-            return View(contact);
+                Sender = userApp,
+                SenderId = userApp.Id,
+                Receiver = receiver,
+                ReceiverId = userApp.Id
+            };
+            _context.Contacts.Add(contact);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
-        // GET: Contacts/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        public IActionResult Requests()
         {
-            if (id == null || _context.Contacts == null)
-            {
-                return NotFound();
-            }
+            var user = User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (userApp == null)
+                throw new Exception();
 
-            var contact = await _context.Contacts.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound();
-            }
-            ViewData["ReceiverId"] = new SelectList(_context.Users, "Id", "Id", contact.ReceiverId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", contact.SenderId);
-            return View(contact);
+            var dataContext = _context.Contacts
+                .Where(c => !c.IsAccepted && c.Receiver.Id.Equals(userId))
+                .Include(c => c.Sender).ToList();
+
+            return View(dataContext);
         }
 
-        // POST: Contacts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,CreatedAt,IsAccepted,SenderId,ReceiverId")] Contact contact)
-        {
-            if (id != contact.Id)
-            {
-                return NotFound();
-            }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(contact);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ContactExists(contact.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ReceiverId"] = new SelectList(_context.Users, "Id", "Id", contact.ReceiverId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", contact.SenderId);
-            return View(contact);
+        public async Task<IActionResult> Accept(Guid? id)
+        {
+            var contact = _context.Contacts.First(c => c.Id == id);
+            contact.IsAccepted = true;
+            _context.SaveChanges();
+            return RedirectToAction("Index");
         }
 
-        // GET: Contacts/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null || _context.Contacts == null)
-            {
-                return NotFound();
-            }
-
-            var contact = await _context.Contacts
-                .Include(c => c.Receiver)
-                .Include(c => c.Sender)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (contact == null)
-            {
-                return NotFound();
-            }
-
-            return View(contact);
+            var contact = _context.Contacts.First(c => c.Id == id);
+            _context.Remove(contact);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
         }
 
-        // POST: Contacts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            if (_context.Contacts == null)
-            {
-                return Problem("Entity set 'DataContext.Contacts'  is null.");
-            }
-            var contact = await _context.Contacts.FindAsync(id);
-            if (contact != null)
-            {
-                _context.Contacts.Remove(contact);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ContactExists(Guid id)
-        {
-          return (_context.Contacts?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
     }
 }

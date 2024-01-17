@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LabProjectsPortal.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240115100114_UpdateUserModel")]
-    partial class UpdateUserModel
+    [Migration("20240117081559_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

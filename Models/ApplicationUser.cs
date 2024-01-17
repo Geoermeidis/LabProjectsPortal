@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Hosting;
-using Microsoft.VisualBasic;
 using System.ComponentModel.DataAnnotations;
 
 namespace LabProjectsPortal.Models

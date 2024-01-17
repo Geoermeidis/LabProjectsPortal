@@ -1,4 +1,4 @@
-﻿@model IEnumerable<LabProjectsPortal.Models.Post>
+﻿@model LabProjectsPortal.Dto.PostsCategoriesDto
 
 @{
     ViewData["Title"] = "Index";
@@ -9,26 +9,34 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<select id="categoryDropdown" class="form-control">
+    <option value="">Select a Category</option>
+    @foreach (var category in Model.Categories)
+    {
+        <option value="@category">@category</option>
+    }
+</select>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Content)
+                Content
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UploadedAt)
+                UploadedAt
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Publisher)
+                Publisher
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
+                Category
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Posts) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Content)
@@ -37,14 +45,21 @@
                 @Html.DisplayFor(modelItem => item.UploadedAt)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Publisher.Id)
+                    @Html.DisplayFor(modelItem => item.Publisher.Email)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    @Html.DisplayFor(modelItem => item.Category.Title)
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+<script>
+    document.getElementById("categoryDropdown").addEventListener("change", function () {
+        var selectedCategory = this.value;
+        if (selectedCategory) {
+            window.location.href = "/Posts/Index?category=" + encodeURIComponent(selectedCategory);
+        }
+    });
+</script>

@@ -1,0 +1,40 @@
+﻿@model List<Contact>
+
+@{
+    ViewData["Title"] = "Requests";
+}
+
+<h1>Requests</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Email
+            </th>
+            <th>
+                SentAt
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Sender.Email
+                </td>
+                <td>
+                    @item.CreatedAt
+                </td>
+                <td>
+                    <a asp-action="Accept" asp-route-id="@item.Id">Accept</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+                
+            </tr>
+        }
+    </tbody>
+</table>
