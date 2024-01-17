@@ -12,8 +12,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DataContext>(
     options =>
     {
-        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
-        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
+        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
     }
 );
 
@@ -26,6 +26,16 @@ builder.Services.Configure<IdentityOptions>(options => {
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
 });
+
+builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+{
+	googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+	googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+}).AddMicrosoftAccount(microsoftOptions =>
+{
+	microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+	microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+}); ;
 
 builder.Services.AddRazorPages();
 
