@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LabProjectsPortal.Data;
 using LabProjectsPortal.Models;
+using System.Security.Claims;
+using LabProjectsPortal.Dto;
 
 namespace LabProjectsPortal.Controllers
 {
@@ -19,157 +21,95 @@ namespace LabProjectsPortal.Controllers
             _context = context;
         }
 
+        private void InitCategories()
+        {
+            if (_context.Hobbies.Any() || _context.Courses.Any())
+                return;
+
+            var courseNames = new List<string>() { "Maths", "Logic Programming", "Image Analysis", "Web Development" };
+            var hobbieNames = new List<string>() { "Painting", "Music", "Basketball", "Gym", "Tennis", "Reading", "Cooking" };
+            var courses = new List<Course>();
+            var hobbies = new List<Hobby>();
+            foreach (var name in courseNames)
+                courses.Add(new Course()
+                {
+                    Title = name
+                });
+            foreach (var name in hobbieNames)
+                hobbies.Add(new Hobby()
+                {
+                    Title = name
+                });
+            _context.Courses.AddRange(courses);
+            _context.Hobbies.AddRange(hobbies);
+            _context.SaveChanges();
+        }
+
         // GET: Posts
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] string? category)
         {
-            var dataContext = _context.Posts.Include(p => p.Category).Include(p => p.Publisher);
-            return View(await dataContext.ToListAsync());
+            InitCategories();
+
+            List<string> courses = _context.Courses.Select(c => c.Title).ToList();
+            List<string> hobbies = _context.Hobbies.Select(h => h.Title).ToList();
+
+            List<Post> dataContext;
+            if (category is null || category.Equals("All"))
+                dataContext = await _context.Posts.Include(p => p.Category).Include(p => p.Publisher).ToListAsync();
+            else
+                dataContext = await _context.Posts.Where(p => p.CategoryId.Equals(category)).Include(p => p.Category).Include(p => p.Publisher).ToListAsync();
+
+            var categ = new List<string>();
+            categ.Add("All");
+
+            return View(new PostsCategoriesDto()
+            {
+                Posts = dataContext,
+                Categories = categ.Concat(courses).ToList().Concat(hobbies).ToList()
+        });
         }
 
-        // GET: Posts/Details/5
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null || _context.Posts == null)
-            {
-                return NotFound();
-            }
-
-            var post = await _context.Posts
-                .Include(p => p.Category)
-                .Include(p => p.Publisher)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (post == null)
-            {
-                return NotFound();
-            }
-
-            return View(post);
-        }
+        
 
         // GET: Posts/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Guid", "Discriminator");
-            ViewData["PublisherId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+            List<string> courses = _context.Courses.Select(c => c.Title).ToList();
+            List<string> hobbies = _context.Hobbies.Select(h => h.Title).ToList();
+            return View(courses.Concat(hobbies).ToList());
         }
 
         // POST: Posts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Content,UploadedAt,PublisherId,CategoryId")] Post post)
+        public async Task<IActionResult> Create(string Content, string CategoryTitle)
         {
-            if (ModelState.IsValid)
+            var user = User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (userApp == null)
+                throw new Exception();
+           
+            var course = _context.Courses.FirstOrDefault(c => c.Title.Equals(CategoryTitle));
+            var hobby = _context.Hobbies.FirstOrDefault(h => h.Title.Equals(CategoryTitle));
+
+            Category category = course is null ? hobby : course;
+
+            Post post = new Post()
             {
-                post.Id = Guid.NewGuid();
-                _context.Add(post);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Guid", "Discriminator", post.CategoryId);
-            ViewData["PublisherId"] = new SelectList(_context.Users, "Id", "Id", post.PublisherId);
-            return View(post);
+                Content = Content,
+                Category = category,
+                CategoryId = category.Title,
+                Publisher = userApp,
+                PublisherId = userApp.Id,
+
+            };
+            _context.Posts.Add(post);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
-        // GET: Posts/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
-        {
-            if (id == null || _context.Posts == null)
-            {
-                return NotFound();
-            }
-
-            var post = await _context.Posts.FindAsync(id);
-            if (post == null)
-            {
-                return NotFound();
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Guid", "Discriminator", post.CategoryId);
-            ViewData["PublisherId"] = new SelectList(_context.Users, "Id", "Id", post.PublisherId);
-            return View(post);
-        }
-
-        // POST: Posts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Content,UploadedAt,PublisherId,CategoryId")] Post post)
-        {
-            if (id != post.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(post);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PostExists(post.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Guid", "Discriminator", post.CategoryId);
-            ViewData["PublisherId"] = new SelectList(_context.Users, "Id", "Id", post.PublisherId);
-            return View(post);
-        }
-
-        // GET: Posts/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
-        {
-            if (id == null || _context.Posts == null)
-            {
-                return NotFound();
-            }
-
-            var post = await _context.Posts
-                .Include(p => p.Category)
-                .Include(p => p.Publisher)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (post == null)
-            {
-                return NotFound();
-            }
-
-            return View(post);
-        }
-
-        // POST: Posts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            if (_context.Posts == null)
-            {
-                return Problem("Entity set 'DataContext.Posts'  is null.");
-            }
-            var post = await _context.Posts.FindAsync(id);
-            if (post != null)
-            {
-                _context.Posts.Remove(post);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool PostExists(Guid id)
-        {
-          return (_context.Posts?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
     }
 }
