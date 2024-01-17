@@ -2,66 +2,124 @@
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
+    Layout = "../Layouts/_LayoutNoBtm.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
+<link rel="icon" type="image/png" href="images/icons/favicon.ico" />
+<link rel="stylesheet" href="~/vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="~/resources/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="~/resources/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+<link rel="stylesheet" href="~/vendor/animate/animate.css">
+<link rel="stylesheet" href="~/vendor/css-hamburgers/hamburgers.min.css">
+<link rel="stylesheet" href="~/vendor/animsition/css/animsition.min.css">
+<link rel="stylesheet" href="~/vendor/select2/select2.min.css">
+<link rel="stylesheet" href="~/vendor/daterangepicker/daterangepicker.css">
+<link rel="stylesheet" href="~/css/sign_in_util.css">
+<link rel="stylesheet" href="~/css/sign_in_main.css">
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
-            }
-        </section>
-    </div>
+<script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
+<script src="/vendor/animsition/js/animsition.min.js"></script>
+<script src="/vendor/bootstrap/js/popper.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/select2/select2.min.js"></script>
+<script src="/vendor/daterangepicker/moment.min.js"></script>
+<script src="/vendor/daterangepicker/daterangepicker.js"></script>
+<script src="/vendor/countdowntime/countdowntime.js"></script>
+<script src="/js/sign_in_main.js"></script>
+
+<div class="limiter">
+	<div class="container-login100" style="background-image: url('/resources/images/sign_in_bg.jpg');">
+		<div class="wrap-login100 p-l-110 p-r-110 p-t-30 p-b-33">
+			<span class="login100-form-title p-b-30">
+				Sign up
+			</span>
+			<span class="login100-form-title p-b-30" style="font-size:20px">
+				Register with another service
+			</span>
+			<div class="container" style="width:100%">
+				<form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+					<div class="row">
+						@foreach (var provider in Model.ExternalLogins!)
+						{
+							<div class="col-sm-6">
+								<button type="submit" class="btn-google m-b-20 w-100" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+									<img src=@string.Format("/resources/images/{0}-icon.png", provider.DisplayName.ToLower()) alt="@provider.DisplayName">
+									@provider.DisplayName
+								</button>
+							</div>
+						}
+					</div>
+				</form>
+			</div>
+			<form id="registerForm" method="post" asp-route-returnUrl="@Model.ReturnUrl" class="login100-form validate-form flex-sb flex-w">
+				<div class="p-t-10 p-b-5">
+					<span class="txt1">
+						First name
+					</span>
+				</div>
+				<div class="wrap-input100 validate-input" data-validate="Email is required">
+					<input asp-for="Input.FirstName" class="input100" autocomplete="new-password" aria-required="true" placeholder="First name" />
+					<span class="focus-input100"></span>
+					<span asp-validation-for="Input.FirstName" class="text-danger"></span>
+				</div>
+
+				<div class="p-t-10 p-b-5">
+					<span class="txt1">
+						Last name
+					</span>
+				</div>
+				<div class="wrap-input100 validate-input" data-validate="Email is required">
+					<input asp-for="Input.LastName" class="input100" autocomplete="new-password" aria-required="true" placeholder="Last name" />
+					<span class="focus-input100"></span>
+					<span asp-validation-for="Input.LastName" class="text-danger"></span>
+				</div>
+
+				<div class="p-t-10 p-b-5">
+					<span class="txt1">
+						First name
+					</span>
+				</div>
+				<div class="wrap-input100 validate-input" data-validate="Email is required">
+					<input asp-for="Input.Email" class="input100" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+					<span class="focus-input100"></span>
+					<span asp-validation-for="Input.Email" class="text-danger"></span>
+				</div>
+
+				<div class="p-t-13 p-b-9">
+					<span class="txt1">
+						Password
+					</span>
+				</div>
+				<div class="wrap-input100 validate-input" data-validate="Password is required">
+					<input asp-for="Input.Password" class="input100" autocomplete="current-password" aria-required="true" placeholder="password" />
+					<span class="focus-input100"></span>
+					<span asp-validation-for="Input.Password" class="text-danger"></span>
+				</div>
+
+				<div class="p-t-13 p-b-9">
+					<span class="txt1">
+						Confirm Password
+					</span>
+				</div>
+				<div class="wrap-input100 validate-input" data-validate="Password is required">
+					<input asp-for="Input.ConfirmPassword" class="input100" autocomplete="new-password" aria-required="true" placeholder="password" />
+					<span class="focus-input100"></span>
+					<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+				</div>
+				<div class="p-t-10 p-b-10 text-danger" asp-validation-summary="ModelOnly" role="alert">
+					<span class="txt1">
+					</span>
+				</div>
+				<div class="container-login100-form-btn m-t-17">
+					<button id="registerSubmit" type="submit" class="login100-form-btn">
+						Register
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<partial name="_ValidationScriptsPartial" />
 }

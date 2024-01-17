@@ -79,7 +79,7 @@ namespace LabProjectsPortal.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
@@ -90,11 +90,9 @@ namespace LabProjectsPortal.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -185,11 +183,9 @@ namespace LabProjectsPortal.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ReceiverId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("SenderId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -260,7 +256,7 @@ namespace LabProjectsPortal.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoryGuid")
+                    b.Property<Guid?>("CategoryGuid")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CategoryId")
@@ -272,7 +268,6 @@ namespace LabProjectsPortal.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PublisherId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset>("UploadedAt")
@@ -496,14 +491,12 @@ namespace LabProjectsPortal.Migrations
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Receiver");
 
@@ -525,9 +518,7 @@ namespace LabProjectsPortal.Migrations
                 {
                     b.HasOne("LabProjectsPortal.Models.Conversation", "Conversation")
                         .WithMany("Messages")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ConversationId");
 
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Sender")
                         .WithMany()
@@ -544,15 +535,11 @@ namespace LabProjectsPortal.Migrations
                 {
                     b.HasOne("LabProjectsPortal.Models.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryGuid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryGuid");
 
                     b.HasOne("LabProjectsPortal.Models.ApplicationUser", "Publisher")
                         .WithMany("Posts")
-                        .HasForeignKey("PublisherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PublisherId");
 
                     b.Navigation("Category");
 

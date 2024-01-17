@@ -11,7 +11,7 @@ namespace LabProjectsPortal.Models
         public DateTimeOffset UploadedAt { get; set; } = DateTimeOffset.UtcNow;
         public string PublisherId { get; set; }
         public string CategoryId { get; set; }
-        public ApplicationUser Publisher { get; set; } = new ApplicationUser();
-        public Category Category { get; set; } = new Category();
+        public ApplicationUser? Publisher { get; set; } = new ApplicationUser();
+        public Category? Category { get; set; } = new Category();
     }
 }

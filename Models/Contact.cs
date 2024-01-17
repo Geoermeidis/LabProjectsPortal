@@ -12,7 +12,7 @@ namespace LabProjectsPortal.Models
         public string SenderId { get; set; }
         public string ReceiverId { get; set; }
 
-        public ApplicationUser Sender { get; set; } = new ApplicationUser();
-        public ApplicationUser Receiver { get; set; } = new ApplicationUser();
+        public ApplicationUser? Sender { get; set; } = new ApplicationUser();
+        public ApplicationUser? Receiver { get; set; } = new ApplicationUser();
     }
 }
