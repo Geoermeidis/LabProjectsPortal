@@ -1,4 +1,4 @@
-﻿@model LabProjectsPortal.Models.Contact
+﻿@model List<string>
 
 @{
     ViewData["Title"] = "Create";
@@ -10,29 +10,19 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form method="post" asp-controller="Contacts" asp-action="Create">
+
             <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                <label for="movie">Email:</label>
+                <select class="form-control" id="Email" name="Email" required>
+                    @foreach (var m in Model)
+                    {
+                        <option value="@m">@m</option>
+                    }
+                </select>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsAccepted" /> @Html.DisplayNameFor(model => model.IsAccepted)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="SenderId" class="control-label"></label>
-                <select asp-for="SenderId" class ="form-control" asp-items="ViewBag.SenderId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReceiverId" class="control-label"></label>
-                <select asp-for="ReceiverId" class ="form-control" asp-items="ViewBag.ReceiverId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+
+            <button type="submit" class="btn btn-primary mt-2">Send Request</button>
         </form>
     </div>
 </div>

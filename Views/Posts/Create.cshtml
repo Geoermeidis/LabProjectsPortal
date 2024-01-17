@@ -19,7 +19,7 @@
 
             <div class="form-group">
                 <label for="movie">Category:</label>
-                <select class="form-control" id="CategoryTitle" name="CategoryTitle">
+                <select class="form-control" id="CategoryTitle" name="CategoryTitle" required>
                     @foreach (var m in Model)
                     {
                         <option value="@m">@m</option>
