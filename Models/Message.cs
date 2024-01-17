@@ -11,7 +11,7 @@ namespace LabProjectsPortal.Models
         public Guid ConversationId { get; set; }
         [Editable(false)]
         public DateTimeOffset SentAt { get; set; } = DateTimeOffset.Now;
-        public ApplicationUser? Sender { get; set; } = new ApplicationUser();
-        public Conversation? Conversation { get; set; } = new Conversation();
+        public ApplicationUser Sender { get; set; } = new ApplicationUser();
+        public Conversation Conversation { get; set; } = new Conversation();
     }
 }

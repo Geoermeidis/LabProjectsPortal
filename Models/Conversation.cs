@@ -12,8 +12,8 @@ namespace LabProjectsPortal.Models
         [AllowNull]
         public Guid CategoryId { get; set; }
 
-        public ICollection<ApplicationUser>? Participants { get; set; } = new List<ApplicationUser>();
-        public ICollection<Message>? Messages { get; set; } = new List<Message>();
-        public Category? Category { get; set; } = new Category();
+        public ICollection<ApplicationUser> Participants { get; set; } = new List<ApplicationUser>();
+        public ICollection<Message> Messages { get; set; } = new List<Message>();
+        public Category Category { get; set; } = new Category();
     }
 }
