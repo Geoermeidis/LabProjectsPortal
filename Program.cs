@@ -3,6 +3,7 @@ using LabProjectsPortal.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Google;
+using Google.Apis.Auth.AspNetCore3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,10 +31,14 @@ builder.Services.Configure<IdentityOptions>(options => {
 });
 
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
-{
-    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-});
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    }).AddMicrosoftAccount(microsoftOptions =>
+    {
+        microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+        microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+    }); ;
 
 
 builder.Services.AddRazorPages();

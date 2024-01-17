@@ -1,4 +1,10 @@
-﻿using LabProjectsPortal.Models;
+﻿using Google.Apis.Auth.AspNetCore3;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.PeopleService.v1;
+using Google.Apis.PeopleService.v1.Data;
+using Google.Apis.Services;
+using LabProjectsPortal.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -13,7 +19,8 @@ namespace LabProjectsPortal.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        //[GoogleScopedAuthorize(PeopleServiceService.ScopeConstants.UserinfoProfile)]
+        public async Task<IActionResult> Index()
         {
             return View();
         }
