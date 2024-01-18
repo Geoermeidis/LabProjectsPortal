@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LabProjectsPortal.Data;
 using LabProjectsPortal.Models;
+using NuGet.ProjectModel;
 
 namespace LabProjectsPortal.Controllers
 {
@@ -19,11 +20,17 @@ namespace LabProjectsPortal.Controllers
             _context = context;
         }
 
-        // GET: Messages
-        public async Task<IActionResult> Index()
+        // GET: Conversations/{id}/Messages TODO
+        public async Task<IActionResult> Index(Guid conversation)
         {
-            var dataContext = _context.Messages.Include(m => m.Conversation).Include(m => m.Sender);
-            return View(await dataContext.ToListAsync());
+            var messages = await _context.Messages
+                .Where(m => m.ConversationId == conversation)
+                .Include(m => m.Conversation)
+                .Include(m => m.Sender).ToListAsync();
+
+            messages = messages.OrderBy(m => m.SentAt).ToList();
+
+            return View(messages);
         }
 
         // GET: Messages/Details/5

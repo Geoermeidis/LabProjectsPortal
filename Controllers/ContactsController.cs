@@ -23,7 +23,7 @@ namespace LabProjectsPortal.Controllers
         }
 
         // GET: Contacts
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var user = User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -66,11 +66,11 @@ namespace LabProjectsPortal.Controllers
         {
             var user = User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
+            var userApp = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (userApp == null)
                 throw new Exception();
 
-            var receiver = _context.Users.FirstOrDefault(u => u.Email.Equals(Email));
+            var receiver = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(Email));
             if (receiver == null)
                 throw new Exception();
 
@@ -82,7 +82,7 @@ namespace LabProjectsPortal.Controllers
                 ReceiverId = userApp.Id
             };
             _context.Contacts.Add(contact);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
@@ -107,7 +107,7 @@ namespace LabProjectsPortal.Controllers
         {
             var contact = _context.Contacts.First(c => c.Id == id);
             contact.IsAccepted = true;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -115,7 +115,7 @@ namespace LabProjectsPortal.Controllers
         {
             var contact = _context.Contacts.First(c => c.Id == id);
             _context.Remove(contact);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
