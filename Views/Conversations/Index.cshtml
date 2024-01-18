@@ -32,7 +32,7 @@
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Index" asp-controller="Messages" asp-route-id="@item.Id">Conversation</a> |
+                <a asp-action="Index" asp-controller="Messages" asp-route-conversation="@item.Id">Conversation</a> |
                 <a asp-action="Leave" asp-route-id="@item.Id">Leave</a>
             </td>
         </tr>
