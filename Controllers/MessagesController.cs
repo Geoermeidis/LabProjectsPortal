@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using LabProjectsPortal.Data;
 using LabProjectsPortal.Models;
 using NuGet.ProjectModel;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace LabProjectsPortal.Controllers
 {
@@ -25,7 +27,7 @@ namespace LabProjectsPortal.Controllers
         {
             var messages = await _context.Messages
                 .Where(m => m.ConversationId == conversation)
-                .Include(m => m.Conversation)
+                .Include(m => m.Conversation).Include(m => m.Conversation.Participants)
                 .Include(m => m.Sender).ToListAsync();
 
             messages = messages.OrderBy(m => m.SentAt).ToList();
@@ -53,130 +55,36 @@ namespace LabProjectsPortal.Controllers
             return View(message);
         }
 
-        // GET: Messages/Create
-        public IActionResult Create()
-        {
-            ViewData["ConversationId"] = new SelectList(_context.Conversations, "Id", "Id");
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Messages/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Content,SenderId,ConversationId,SentAt")] Message message)
+        public async Task<IActionResult> Create(string content, string conversation)
         {
-            if (ModelState.IsValid)
-            {
-                message.Id = Guid.NewGuid();
-                _context.Add(message);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ConversationId"] = new SelectList(_context.Conversations, "Id", "Id", message.ConversationId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", message.SenderId);
-            return View(message);
-        }
-
-        // GET: Messages/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
-        {
-            if (id == null || _context.Messages == null)
-            {
+            if (content.IsNullOrEmpty() || conversation == null) {
                 return NotFound();
             }
+            var convId = Guid.Parse(conversation);
+            var conv = _context.Conversations.FirstOrDefault(c => c.Id == convId);
 
-            var message = await _context.Messages.FindAsync(id);
-            if (message == null)
-            {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = _context.Users.Where(c => c.Id == userId).First();
+
+            if (user == null || conv == null)
                 return NotFound();
-            }
-            ViewData["ConversationId"] = new SelectList(_context.Conversations, "Id", "Id", message.ConversationId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", message.SenderId);
-            return View(message);
-        }
 
-        // POST: Messages/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Content,SenderId,ConversationId,SentAt")] Message message)
-        {
-            if (id != message.Id)
+            Message message = new Message()
             {
-                return NotFound();
-            }
+                Id = Guid.NewGuid(),
+                ConversationId = convId,
+                SenderId = userId,
+                Content = content,
+                Conversation = conv,
+                Sender = user
+            };
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(message);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MessageExists(message.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ConversationId"] = new SelectList(_context.Conversations, "Id", "Id", message.ConversationId);
-            ViewData["SenderId"] = new SelectList(_context.Users, "Id", "Id", message.SenderId);
-            return View(message);
-        }
-
-        // GET: Messages/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
-        {
-            if (id == null || _context.Messages == null)
-            {
-                return NotFound();
-            }
-
-            var message = await _context.Messages
-                .Include(m => m.Conversation)
-                .Include(m => m.Sender)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            return View(message);
-        }
-
-        // POST: Messages/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            if (_context.Messages == null)
-            {
-                return Problem("Entity set 'DataContext.Messages'  is null.");
-            }
-            var message = await _context.Messages.FindAsync(id);
-            if (message != null)
-            {
-                _context.Messages.Remove(message);
-            }
             
+            _context.Messages.Add(message);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool MessageExists(Guid id)
-        {
-          return (_context.Messages?.Any(e => e.Id == id)).GetValueOrDefault();
+            return RedirectToAction("Index", new {conversation =convId});
         }
     }
 }
