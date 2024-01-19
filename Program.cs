@@ -1,5 +1,6 @@
 using LabProjectsPortal.Data;
 using LabProjectsPortal.Models;
+using LabProjectsPortal.Notifications;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,12 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+builder.Services.AddSignalR();
+
 // add database service for connection
 builder.Services.AddDbContext<DataContext>(
     options =>
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
-        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
+        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
     }
 );
 
@@ -53,8 +58,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<NotificationHub>("/notificationHub");
+});
+
 
 app.MapRazorPages();
 
