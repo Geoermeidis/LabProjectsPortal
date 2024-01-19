@@ -17,8 +17,8 @@ builder.Services.AddSignalR();
 builder.Services.AddDbContext<DataContext>(
     options =>
     {
-        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
-        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
+        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
     }
 );
 

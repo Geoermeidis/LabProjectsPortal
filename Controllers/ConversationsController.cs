@@ -55,17 +55,13 @@ namespace LabProjectsPortal.Controllers
         {
             InitCategories();
 
-            List<string> courses = _context.Courses.Select(c => c.Title).ToList();
-            List<string> hobbies = _context.Hobbies.Select(h => h.Title).ToList();
-            List<string> categories = courses;
-
-            categories.AddRange(hobbies);
+            List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
 
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
-            var user =  _context.Users
+            var user = _context.Users
                                .Include(c => c.Conversations).ThenInclude(c => c.Category)
-                               .Where(c => c.Id ==  userId).First();
+                               .Where(c => c.Id == userId).First();
 
             var conversations = user.Conversations;
 
@@ -80,35 +76,52 @@ namespace LabProjectsPortal.Controllers
         // GET: Conversations/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Guid", "Discriminator");
+            List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
+
+            ViewData["Categories"] = new SelectList(categories);
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,CategoryId")] Conversation conversation)
+        public async Task<IActionResult> Create(string category, [Bind("Id,Title,CategoryId")] Conversation conversation)
         {
+            List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
+
+            Category cat;
+
+            if (courses.Contains(category))
+                cat = _context.Courses.Where(c => c.Title == category).First();
+            else if (courses.Contains(category))
+                cat = _context.Hobbies.Where(c => c.Title == category).First();
+            else
+                return NotFound();
+
             if (ModelState.IsValid)
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = _context.Users.Where(c => c.Id == userId).First();
+
                 conversation.Id = Guid.NewGuid();
+                conversation.CategoryId = cat.Guid;
+                conversation.Category = cat;
+                conversation.Participants.Add(user);
+
                 _context.Add(conversation);
+
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Guid", "Discriminator", conversation.CategoryId);
+
+            ViewData["Categories"] = new SelectList(categories);
             return View(conversation);
         }
 
         // GET: Conversations/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            InitCategories();
-
-            List<string> courses = _context.Courses.Select(c => c.Title).ToList()!;
-            List<string> hobbies = _context.Hobbies.Select(h => h.Title).ToList()!;
-            List<string> categories = courses;
-
-            categories.AddRange(hobbies);
+            List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
 
             if (id == null || _context.Conversations == null)
             {
@@ -130,6 +143,7 @@ namespace LabProjectsPortal.Controllers
             //ViewData["CatIds"] = new SelectList(_context.Hobbies.Select(c => c.Guid).ToList().Concat(_context.Courses.Select(c => c.Guid).ToList()));
             ViewData["Categories"] = new SelectList(categories);
             ViewData["Users"] = new SelectList(users);
+
             return View(conversation);
         }
 
@@ -143,14 +157,13 @@ namespace LabProjectsPortal.Controllers
                 return NotFound();
             }
 
-            List<string> courses = _context.Courses.Select(c => c.Title).ToList();
-            List<string> hobbies = _context.Hobbies.Select(h => h.Title).ToList();
-            
+            List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
+
             Category newCat;
 
             if (courses.Contains(category))
                 newCat = _context.Courses.Where(c => c.Title == category).First();
-            else if (courses.Contains(category)) 
+            else if (courses.Contains(category))
                 newCat = _context.Hobbies.Where(c => c.Title == category).First();
             else
                 return NotFound();
@@ -176,8 +189,8 @@ namespace LabProjectsPortal.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            
-            ViewData["Categories"] = new SelectList(courses.Concat(hobbies).ToList());
+
+            ViewData["Categories"] = new SelectList(categories);
             ViewData["Users"] = new SelectList(users);
 
             return View(conversation);
@@ -200,11 +213,17 @@ namespace LabProjectsPortal.Controllers
                                .Where(c => c.Id == userId).First();
 
             var conversation = user.Conversations.Where(c => c.Id == id).First();
-            
+
             if (conversation == null)
                 return NotFound();
 
-            user.Conversations.Remove(conversation);
+            if (conversation.Participants.Count == 1)
+            { // delete conversation if no users are left, 1 is to be deleted
+                _context.Messages.RemoveRange(conversation.Messages);
+                _context.Conversations.Remove(conversation); 
+            }
+            else
+                user.Conversations.Remove(conversation);  // delete user from conversation
 
             _context.SaveChanges();
 
@@ -217,11 +236,7 @@ namespace LabProjectsPortal.Controllers
             if (conversationId == null || username == null)
                 return NotFound();
 
-            List<string> courses = _context.Courses.Select(c => c.Title).ToList()!;
-            List<string> hobbies = _context.Hobbies.Select(h => h.Title).ToList()!;
-            List<string> categories = courses;
-
-            categories.AddRange(hobbies);
+            List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
 
             var conversation = _context.Conversations
                             .Include(c => c.Category)
@@ -233,23 +248,30 @@ namespace LabProjectsPortal.Controllers
 
             var users = _context.Users.Where(u => !u.Conversations.Contains(conversation)).Select(c => c.UserName);
             var userToAdd = _context.Users.FirstOrDefault(c => c.UserName == username);
-            
+
             if (userToAdd == null)
                 return NotFound();
 
             conversation.Participants.Add(userToAdd);
-            
+
             _context.SaveChanges();
 
             ViewData["Categories"] = new SelectList(categories);
             ViewData["Users"] = new SelectList(users);
 
-            return RedirectToAction("Edit", "Conversations", new {id= Guid.Parse(conversationId)});
+            return RedirectToAction("Edit", "Conversations", new { id = Guid.Parse(conversationId) });
         }
 
         private bool ConversationExists(Guid id)
         {
-          return (_context.Conversations?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Conversations?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        private List<string> GetCategoryNames(out List<string> hobbies, out List<string> courses) {
+            courses = _context.Courses.Select(c => c.Title).ToList()!;
+            hobbies = _context.Hobbies.Select(h => h.Title).ToList()!;
+
+            return courses.Concat(hobbies).ToList(); 
         }
     }
 }
