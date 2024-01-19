@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LabProjectsPortal</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LabProjectsPortal.styles.css" asp-append-version="true" />
@@ -74,10 +75,20 @@
 
         connection.on("ReceiveText", function (message) {
             @using System.Security.Claims
+            
             var userEmail = "@User.FindFirst(ClaimTypes.Email)?.Value";
-            if (userEmail == message.email) {
-                console.log(message.message)
-                alert(message.message)
+            
+            if (message.recipients.includes(userEmail)) {
+                
+                var testId = document.getElementById("test");
+                testId.innerHTML = '<div class="toast-container position-fixed top-0 end-0 p-3"> <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000"> <div class="toast-header bg-info"> <img src="/resources/images/message-icon.png" class="rounded me-2" alt="Message"> <strong class="me-auto">' + message.title + '</strong> <small class="text-muted">' + message.sentAt + '</small> <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"> </button> </div> <div class="toast-body">' + message.message + '</div> </div> </div>';
+                
+                var toastLiveExample = document.getElementById('liveToast');
+                var toast = new bootstrap.Toast(toastLiveExample);
+                
+                toast.show();
+                console.log(message.message);
+                // alert(message.message);
             }
             else
                 console.log("bruuuh")

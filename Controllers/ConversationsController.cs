@@ -9,6 +9,8 @@ using LabProjectsPortal.Data;
 using LabProjectsPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using LabProjectsPortal.Notifications;
+using Microsoft.AspNetCore.SignalR;
 
 namespace LabProjectsPortal.Controllers
 {
@@ -16,10 +18,14 @@ namespace LabProjectsPortal.Controllers
     public class ConversationsController : Controller
     {
         private readonly DataContext _context;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationService _notificationService;
 
-        public ConversationsController(DataContext context)
+        public ConversationsController(DataContext context, IHubContext<NotificationHub> hubContext, INotificationService notificationService)
         {
             _context = context;
+            _hubContext = hubContext;
+            _notificationService = notificationService;
         }
 
         private void InitCategories()
@@ -217,13 +223,7 @@ namespace LabProjectsPortal.Controllers
             if (conversation == null)
                 return NotFound();
 
-            if (conversation.Participants.Count == 1)
-            { // delete conversation if no users are left, 1 is to be deleted
-                _context.Messages.RemoveRange(conversation.Messages);
-                _context.Conversations.Remove(conversation); 
-            }
-            else
-                user.Conversations.Remove(conversation);  // delete user from conversation
+            user.Conversations.Remove(conversation);  // delete user from conversation
 
             _context.SaveChanges();
 
@@ -231,7 +231,7 @@ namespace LabProjectsPortal.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUser(string conversationId, string username)
+        public async Task<IActionResult> AddUser(string conversationId, string username)
         {
             if (conversationId == null || username == null)
                 return NotFound();
@@ -246,6 +246,8 @@ namespace LabProjectsPortal.Controllers
             if (conversation == null)
                 return NotFound();
 
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = _context.Users.Where(c => c.Id == userId).First();
             var users = _context.Users.Where(u => !u.Conversations.Contains(conversation)).Select(c => c.UserName);
             var userToAdd = _context.Users.FirstOrDefault(c => c.UserName == username);
 
@@ -258,6 +260,15 @@ namespace LabProjectsPortal.Controllers
 
             ViewData["Categories"] = new SelectList(categories);
             ViewData["Users"] = new SelectList(users);
+
+            await _notificationService.SendNotification(new NotificationDto()
+            {
+                Title = string.Format("Added to {0}", conversation.Title),
+                SentAt = DateTimeOffset.Now.DateTime.ToLocalTime().ToString(),
+                Recipients = new List<string>() { userToAdd.Email },
+                Message = string.Format("You have been added to {0} by {1}", conversation.Title, user.UserName)
+            });
+
 
             return RedirectToAction("Edit", "Conversations", new { id = Guid.Parse(conversationId) });
         }
