@@ -80,6 +80,11 @@ namespace LabProjectsPortal.Areas.Identity.Pages.Account
 			[RegularExpression("^[A-Za-z]+$")]
 			[Display(Name = "Last name")]
 			public string LastName;
+
+			[Required]
+			[RegularExpression("^[A-Za-z0-9]{6,}$")]
+			[Display(Name = "Username")]
+			public string UserName;
 			/// <summary>
 			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
 			///     directly from your code. This API may change or be removed in future releases.
@@ -122,10 +127,6 @@ namespace LabProjectsPortal.Areas.Identity.Pages.Account
 			if (ModelState.IsValid)
 			{
 				var user = CreateUser();
-
-				//user.FirstName = "adasa";
-				//user.LastName = "dasad";
-
 				user.CreatedAt = DateTimeOffset.Now;
 
 				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

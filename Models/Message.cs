@@ -2,7 +2,7 @@
 
 namespace LabProjectsPortal.Models
 {
-    public class Message
+    public partial class Message
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();

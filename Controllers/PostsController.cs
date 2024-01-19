@@ -66,7 +66,7 @@ namespace LabProjectsPortal.Controllers
             {
                 Posts = dataContext,
                 Categories = categ.Concat(courses).ToList().Concat(hobbies).ToList()
-        });
+            });
         }
 
         
@@ -102,8 +102,7 @@ namespace LabProjectsPortal.Controllers
                 Category = category,
                 CategoryId = category.Title,
                 Publisher = userApp,
-                PublisherId = userApp.Id,
-
+                PublisherId = userApp.Id
             };
             _context.Posts.Add(post);
             _context.SaveChanges();
