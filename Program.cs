@@ -17,15 +17,16 @@ builder.Services.AddSignalR();
 builder.Services.AddDbContext<DataContext>(
     options =>
     {
-        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
-        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringG"));
+        //options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringT"));
     }
 );
 
 // configure identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<DataContext>();
 // password requirements
-builder.Services.Configure<IdentityOptions>(options => {
+builder.Services.Configure<IdentityOptions>(options =>
+{
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
     options.Password.RequireUppercase = true;
@@ -34,12 +35,12 @@ builder.Services.Configure<IdentityOptions>(options => {
 
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 {
-	googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-	googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
 }).AddMicrosoftAccount(microsoftOptions =>
 {
-	microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
-	microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+    microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+    microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
 }); ;
 
 builder.Services.AddRazorPages();

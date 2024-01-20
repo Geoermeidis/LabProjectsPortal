@@ -32,13 +32,13 @@ namespace LabProjectsPortal.Models
 
                 // Construct the formatted string
                 string time;
-                if (minutes < 1 && hours == 0 && days == 0) 
+                if (minutes < 1 && hours < 1 && days < 1) 
                     time = string.Format("{0} seconds ago", Math.Floor(seconds));
-                else if (minutes > 1 && hours == 0 && days == 0)
+                else if (minutes > 1 && hours < 1 && days < 1)
                     time = string.Format("{0} minutes ago", Math.Floor(minutes));
-                else if (hours <= 12 && days == 0)
+                else if (hours <= 12 && days < 1)
                     time = string.Format("{0} hours ago", Math.Floor(hours)); 
-                else if(days==0)
+                else if(days < 1)
                     time = string.Format("{0}:{1}", SentAt.Hour, SentAt.Minute);
                 else
                     time = string.Format("{0}", SentAt.Date.ToShortDateString());
