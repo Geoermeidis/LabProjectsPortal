@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Page not found";
+    var userId = Context.Request.Cookies["UserId"];
+    var username = Context.Request.Cookies["UserName"];
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:700,900">
+<link rel="stylesheet" href="~/css/font-awesome.min.css">
+<link rel="stylesheet" href="~/css/notfound-style.css">
+
+<div id="notfound">
+	<div class="notfound-bg"></div>
+	<div class="notfound">
+		<div class="notfound-404">
+			<h1>404</h1>
+		</div>
+		<h2>we are sorry, but the page you requested was not found</h2>
+		<a asp-action="Index" class="home-btn">Go Home</a>
+		<a asp-action="Privacy" class="contact-btn">Contact us</a>
+	</div>
+</div>

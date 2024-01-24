@@ -13,6 +13,8 @@ namespace LabProjectsPortal.Controllers
             _logger = logger;
         }
 
+        public IActionResult NotFound() => View();
+
         public IActionResult Index()
         {
             return View();

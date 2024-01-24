@@ -30,7 +30,7 @@ namespace LabProjectsPortal.Controllers
             var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
 
             if (userApp == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
             // get all contacts where the request is accepted and the user is either receiver or sender
             var dataContext = _context.Contacts
@@ -57,7 +57,7 @@ namespace LabProjectsPortal.Controllers
                 Include(c => c.UserSentContacts).FirstOrDefault(u => u.Id == userId);
             
             if (userApp == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
             // take all user ids who the current has already sent or be sent a contact request 
             var userContactsSent = _context.Contacts.Where(c => c.SenderId == userId).Select(c => c.ReceiverId).ToList();
@@ -82,12 +82,12 @@ namespace LabProjectsPortal.Controllers
             var userApp = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             
             if (userApp == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
             var receiver = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(Username));
             
             if (receiver == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
             var contact = new Contact()
             {
@@ -108,7 +108,7 @@ namespace LabProjectsPortal.Controllers
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
             if (userApp == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
             var dataContext = _context.Contacts
                 .Where(c => !c.IsAccepted && (c.Receiver.Id.Equals(userId) || c.Sender.Id.Equals(userId)))

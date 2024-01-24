@@ -91,7 +91,7 @@ namespace LabProjectsPortal.Controllers
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
             if (userApp == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
            
             var course = _context.Courses.FirstOrDefault(c => c.Title.Equals(CategoryTitle));
             var hobby = _context.Hobbies.FirstOrDefault(h => h.Title.Equals(CategoryTitle));
