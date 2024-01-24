@@ -4,33 +4,51 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<style> 
+    body{
+        justify-content:center
+    }
 
-<h4>Conversation</h4>
+    .customform {
+        border: solid 2px #8C8C8C;
+        padding-left:40px;
+        padding-right: 40px;
+        padding-bottom: 40px; 
+        padding-top: 20px;
+    }
+
+</style>
+
+<h2>Create new conversation </h2>
+
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="CategoryId" value="D8B76AD2-8339-4C3A-A4A8-04E6230A28D7" hidden />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label"></label>
-                <select asp-for="Category.Title" asp-items="ViewBag.Categories" name="category" class="form-control" id="catname"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="container">
+    <br>
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-4">
+            <form asp-action="Create" class="customform">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input asp-for="CategoryId" value="D8B76AD2-8339-4C3A-A4A8-04E6230A28D7" hidden />
+                <div class="form-group">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"></label>
+                    <select asp-for="Category.Title" asp-items="ViewBag.Categories" name="category" class="form-control" id="catname"></select>
+                </div>
+                <br>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
+<br>
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a class="btn btn-info" asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

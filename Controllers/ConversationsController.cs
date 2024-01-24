@@ -98,7 +98,7 @@ namespace LabProjectsPortal.Controllers
 
             if (courses.Contains(category))
                 cat = _context.Courses.Where(c => c.Title == category).First();
-            else if (courses.Contains(category))
+            else if (hobbies.Contains(category))
                 cat = _context.Hobbies.Where(c => c.Title == category).First();
             else
                 return NotFound();
@@ -169,7 +169,7 @@ namespace LabProjectsPortal.Controllers
 
             if (courses.Contains(category))
                 newCat = _context.Courses.Where(c => c.Title == category).First();
-            else if (courses.Contains(category))
+            else if (hobbies.Contains(category))
                 newCat = _context.Hobbies.Where(c => c.Title == category).First();
             else
                 return NotFound();

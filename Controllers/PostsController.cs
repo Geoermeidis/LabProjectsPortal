@@ -57,14 +57,16 @@ namespace LabProjectsPortal.Controllers
             if (category is null || category.Equals("All"))
                 dataContext = await _context.Posts.Include(p => p.Category).Include(p => p.Publisher).ToListAsync();
             else
-                dataContext = await _context.Posts.Where(p => p.CategoryId.Equals(category)).Include(p => p.Category).Include(p => p.Publisher).ToListAsync();
+            {
+                dataContext = await _context.Posts.Where(p => p.Category.Title.Equals(category)).Include(p => p.Category).Include(p => p.Publisher).ToListAsync();
+            }
 
             var categ = new List<string>();
             categ.Add("All");
 
             return View(new PostsCategoriesDto()
             {
-                Posts = dataContext,
+                Posts = dataContext.OrderBy( m => m.UploadedAt).Reverse().ToList(),
                 Categories = categ.Concat(courses).ToList().Concat(hobbies).ToList()
             });
         }

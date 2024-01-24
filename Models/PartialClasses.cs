@@ -47,4 +47,35 @@ namespace LabProjectsPortal.Models
             }
         }
     }
+    public partial class Post
+    {
+        [DisplayName("Uploaded")]
+        public string SentAtDifference
+        {
+            get
+            {
+                var timeDifference = DateTimeOffset.Now - UploadedAt;
+
+                double seconds = timeDifference.Seconds;
+                double minutes = timeDifference.TotalMinutes;
+                double hours = timeDifference.TotalHours;
+                double days = timeDifference.Days;
+
+                // Construct the formatted string
+                string time;
+                if (minutes < 1 && hours < 1 && days < 1)
+                    time = string.Format("{0} seconds ago", Math.Floor(seconds));
+                else if (minutes > 1 && hours < 1 && days < 1)
+                    time = string.Format("{0} minutes ago", Math.Floor(minutes));
+                else if (hours <= 12 && days < 1)
+                    time = string.Format("{0} hours ago", Math.Floor(hours));
+                else if (days < 1)
+                    time = string.Format("{0}:{1}", UploadedAt.Hour, UploadedAt.Minute);
+                else
+                    time = string.Format("{0}", UploadedAt.Date.ToShortDateString());
+
+                return time;
+            }
+        }
+    }
 }

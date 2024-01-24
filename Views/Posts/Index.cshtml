@@ -4,11 +4,13 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1 class="text-center">Posts</h1>
+<link rel="stylesheet" href="~/css/posts_main.css">
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-info" asp-action="Create">Create New</a>
 </p>
+
 <select id="categoryDropdown" class="form-control">
     <option value="">Select a Category</option>
     @foreach (var category in Model.Categories)
@@ -16,45 +18,42 @@
         <option value="@category">@category</option>
     }
 </select>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Content
-            </th>
-            <th>
-                UploadedAt
-            </th>
-            <th>
-                Publisher
-            </th>
-            <th>
-                Category
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Posts) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Content)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UploadedAt)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Publisher.Email)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Category.Title)
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-
+<br>
+<div class="container">
+    <div class="center">
+        <div class="col-md-7 col-xs-12 col-md-offset-3">
+            <div class="panel" id="daily-feed">
+                <div class="panel-body">
+                    <ul class="list-group list-group-dividered list-group-full">
+                        @foreach (var item in Model.Posts)
+                        {
+                            string _src = string.Format("/resources/images/avatar{0}.png", (new Random()).Next(1, 11));
+                            <li class="list-group-item">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <a class="avatar avatar-away" href="javascript:void(0)">
+                                            <img src="@_src" alt="Avatar"><i></i>
+                                        </a>
+                                    </div>
+                                    <div class="media-body">
+                                        <h4 class="media-heading" style="font-size:20px">
+                                            <a class="name">@item.Publisher.FullName</a> posted on @item.Category.Title
+                                        </h4>
+                                        <small>@item.UploadedAt.DateTime</small>
+                                        <div class="content well" style="font-size:18px">
+                                            @item.Content
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr/>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     document.getElementById("categoryDropdown").addEventListener("change", function () {
         var selectedCategory = this.value;
@@ -63,3 +62,5 @@
         }
     });
 </script>
+
+
