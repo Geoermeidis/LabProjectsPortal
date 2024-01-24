@@ -14,7 +14,7 @@ namespace LabProjectsPortal.Controllers
         }
 
         public IActionResult NotFound() => View();
-
+        public IActionResult Privacy() => View();
         public IActionResult Index()
         {
             return View();
