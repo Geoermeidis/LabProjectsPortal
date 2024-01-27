@@ -74,6 +74,7 @@
 
         var connection = new signalR.HubConnectionBuilder()
             .withUrl("/notificationHub")
+            .configureLogging(signalR.LogLevel.Information)
             .build();
 
         connection.on("ReceiveText", function (message) {
@@ -98,7 +99,7 @@
         });
 
         connection.start().then(function () {
-            // Connection established
+            console.log("Signal r Connected");// Connection established
         }).catch(function (err) {
             console.error(err.toString());
         });
