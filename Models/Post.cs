@@ -2,7 +2,7 @@
 
 namespace LabProjectsPortal.Models
 {
-    public class Post
+    public partial class Post
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();

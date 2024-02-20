@@ -34,7 +34,7 @@ namespace LabProjectsPortal.Controllers
         {
             var conv = _context.Conversations.Include(c => c.Participants).FirstOrDefault(m => m.Id == conversation);
             
-            if (conv is null) { return NotFound();}
+            if (conv is null) { return RedirectToAction("NotFound", "Home");}
             
             var messages = await _context.Messages
                 .Where(m => m.ConversationId == conversation)
@@ -54,7 +54,7 @@ namespace LabProjectsPortal.Controllers
         public async Task<IActionResult> Create(string content, string conversation)
         {
             if (content.IsNullOrEmpty() || conversation == null) {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
             var convId = Guid.Parse(conversation);
             var conv = _context.Conversations.Include(c => c.Participants).FirstOrDefault(c => c.Id == convId);
@@ -63,7 +63,7 @@ namespace LabProjectsPortal.Controllers
             var user = _context.Users.Where(c => c.Id == userId).First();
 
             if (user == null || conv == null)
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
 
             Message message = new Message()
             {

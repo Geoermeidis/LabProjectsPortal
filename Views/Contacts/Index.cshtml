@@ -1,35 +1,72 @@
-﻿@model List<string>
-
+﻿@model List<Contact>
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<link rel="stylesheet" href="~/css/requests.css">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<p>
-    <a asp-action="Requests">See your requests</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Email
-            </th>
+<div class="page-content page-container" id="page-content">
+    <div class="padding">
+        <div class="row container d-flex justify-content-center">
+            <div class="col-lg-8 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Contacts</h4>
+                        <p class="card-description">
+                            Hit up a colleague
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Full name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Created On</th>
 
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @item
-            </td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        foreach (Contact item in Model)
+                                        {
+                                            if (item.ReceiverId.Equals(User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
+                                            {
+                                                <tr>
+                                                    <td>@item.Sender.FullName</td>
+                                                    <td>@item.Sender.UserName</td>
+                                                    <td>@item.Sender.Email</td>
+                                                    <td>@item.CreatedAt.DateTime</td>
+                                                       </tr>
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td>@item.Receiver.FullName</td>
+                                                    <td>@item.Receiver.UserName</td>
+                                                    <td>@item.Receiver.Email</td>
+                                                    <td>@item.CreatedAt.DateTime</td>
+                                                    </tr>
+                                            }
 
-        </tr>
-}
-    </tbody>
-</table>
+                                        }
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="button-box col-lg-12">
+    <a class="btn btn-primary" asp-action="Create">Send request</a>
+    <a class="btn btn-info" asp-action="Requests">See your requests</a>
+</div>
+
+

@@ -1,40 +1,69 @@
-﻿@model List<Contact>
+﻿@using System.Security.Claims
+@model List<Contact>
 
 @{
     ViewData["Title"] = "Requests";
 }
+<link rel="stylesheet" href="~/css/requests.css">
 
-<h1>Requests</h1>
+<div class="page-content page-container" id="page-content">
+    <div class="padding">
+        <div class="row container d-flex justify-content-center">
+            <div class="col-lg-8 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Requests</h4>
+                        <p class="card-description">
+                            Pending requests
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Full name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Created On</th>
+                                        <th>Status</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        foreach (Contact item in Model)
+                                        {
+                                            if (item.ReceiverId.Equals(User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
+                                            {
+                                                <tr>
+                                                    <td>@item.Sender.FullName</td>
+                                                    <td>@item.Sender.UserName</td>
+                                                    <td>@item.Sender.Email</td>
+                                                    <td>@item.CreatedAt.DateTime</td>
+                                                    <td> 
+                                                    <a class="btn btn-success" asp-action="Accept" asp-route-id="@item.Id"> Accept </a></td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td>@item.Receiver.FullName</td>
+                                                    <td>@item.Receiver.UserName</td>
+                                                    <td>@item.Receiver.Email</td>
+                                                    <td>@item.CreatedAt.DateTime</td>
+                                                    <td><label class="badge text-danger"><strong><b>Pending</b></strong></label></td>
+                                                </tr>
+                                            }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Email
-            </th>
-            <th>
-                SentAt
-            </th>
+                                        }
+                                    }
 
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @item.Sender.Email
-                </td>
-                <td>
-                    @item.CreatedAt
-                </td>
-                <td>
-                    <a asp-action="Accept" asp-route-id="@item.Id">Accept</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-                
-            </tr>
-        }
-    </tbody>
-</table>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

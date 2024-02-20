@@ -98,10 +98,10 @@ namespace LabProjectsPortal.Controllers
 
             if (courses.Contains(category))
                 cat = _context.Courses.Where(c => c.Title == category).First();
-            else if (courses.Contains(category))
+            else if (hobbies.Contains(category))
                 cat = _context.Hobbies.Where(c => c.Title == category).First();
             else
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
 
             if (ModelState.IsValid)
             {
@@ -131,7 +131,7 @@ namespace LabProjectsPortal.Controllers
 
             if (id == null || _context.Conversations == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             var conversation = await _context.Conversations
@@ -141,7 +141,7 @@ namespace LabProjectsPortal.Controllers
 
             if (conversation == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
             // they dont participate in this current conversation
             var users = _context.Users.Where(u => !u.Conversations.Contains(conversation)).Select(c => c.UserName);
@@ -160,7 +160,7 @@ namespace LabProjectsPortal.Controllers
         {
             if (id != conversation.Id)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
@@ -169,10 +169,10 @@ namespace LabProjectsPortal.Controllers
 
             if (courses.Contains(category))
                 newCat = _context.Courses.Where(c => c.Title == category).First();
-            else if (courses.Contains(category))
+            else if (hobbies.Contains(category))
                 newCat = _context.Hobbies.Where(c => c.Title == category).First();
             else
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
 
             conversation.Category = newCat;
             var users = _context.Users.Where(u => !u.Conversations.Contains(conversation)).Select(c => c.UserName);
@@ -188,7 +188,7 @@ namespace LabProjectsPortal.Controllers
                 {
                     if (!ConversationExists(conversation.Id))
                     {
-                        return NotFound();
+                        return RedirectToAction("NotFound", "Home");
                     }
                     else
                         throw;
@@ -209,7 +209,7 @@ namespace LabProjectsPortal.Controllers
 
             if (id == null || _context.Conversations == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -221,7 +221,7 @@ namespace LabProjectsPortal.Controllers
             var conversation = user.Conversations.Where(c => c.Id == id).First();
 
             if (conversation == null)
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
 
             user.Conversations.Remove(conversation);  // delete user from conversation
 
@@ -234,7 +234,7 @@ namespace LabProjectsPortal.Controllers
         public async Task<IActionResult> AddUser(string conversationId, string username)
         {
             if (conversationId == null || username == null)
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
 
             List<string> categories = GetCategoryNames(out List<string> hobbies, out List<string> courses);
 
@@ -244,7 +244,7 @@ namespace LabProjectsPortal.Controllers
                             .FirstOrDefault(c => c.Id == Guid.Parse(conversationId));
 
             if (conversation == null)
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var user = _context.Users.Where(c => c.Id == userId).First();
@@ -252,7 +252,7 @@ namespace LabProjectsPortal.Controllers
             var userToAdd = _context.Users.FirstOrDefault(c => c.UserName == username);
 
             if (userToAdd == null)
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
 
             conversation.Participants.Add(userToAdd);
 

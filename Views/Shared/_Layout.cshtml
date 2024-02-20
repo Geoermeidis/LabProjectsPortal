@@ -23,6 +23,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        <li>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Posts" asp-action="Index">Posts</a>
                         </li>
@@ -71,6 +74,7 @@
 
         var connection = new signalR.HubConnectionBuilder()
             .withUrl("/notificationHub")
+            .configureLogging(signalR.LogLevel.Information)
             .build();
 
         connection.on("ReceiveText", function (message) {
@@ -95,7 +99,7 @@
         });
 
         connection.start().then(function () {
-            // Connection established
+            console.log("Signal r Connected");// Connection established
         }).catch(function (err) {
             console.error(err.toString());
         });

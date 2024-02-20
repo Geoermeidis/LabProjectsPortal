@@ -32,14 +32,14 @@ namespace LabProjectsPortal.Controllers
         {
             if (id == null || _context.Users == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             var applicationUser = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (applicationUser == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             return View(applicationUser);
@@ -72,13 +72,13 @@ namespace LabProjectsPortal.Controllers
         {
             if (id == null || _context.Users == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             var applicationUser = await _context.Users.FindAsync(id);
             if (applicationUser == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
             return View(applicationUser);
         }
@@ -92,7 +92,7 @@ namespace LabProjectsPortal.Controllers
         {
             if (id != applicationUser.Id)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             if (ModelState.IsValid)
@@ -106,7 +106,7 @@ namespace LabProjectsPortal.Controllers
                 {
                     if (!ApplicationUserExists(applicationUser.Id))
                     {
-                        return NotFound();
+                        return RedirectToAction("NotFound", "Home");
                     }
                     else
                     {
@@ -123,14 +123,14 @@ namespace LabProjectsPortal.Controllers
         {
             if (id == null || _context.Users == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             var applicationUser = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (applicationUser == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Home");
             }
 
             return View(applicationUser);

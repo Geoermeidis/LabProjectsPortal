@@ -22,6 +22,8 @@ builder.Services.AddDbContext<DataContext>(
     }
 );
 
+
+
 // configure identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<DataContext>();
 // password requirements

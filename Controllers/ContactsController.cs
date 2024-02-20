@@ -28,20 +28,22 @@ namespace LabProjectsPortal.Controllers
             var user = User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
-            if (userApp == null)
-                throw new Exception();
 
+            if (userApp == null)
+                return RedirectToAction("NotFound", "Home");
+
+            // get all contacts where the request is accepted and the user is either receiver or sender
             var dataContext = _context.Contacts
                 .Where(c => c.IsAccepted && (c.Sender.Id.Equals(userId) || c.Receiver.Id.Equals(userId)))
                 .Include(c => c.Receiver).Include(c => c.Sender);
-            List<string> contacts = new List<string>();
+
+            List<Contact> contacts = new();
+            
             foreach (var c in dataContext)
             {
-                if (c.SenderId.Equals(userId))
-                    contacts.Add(c.Receiver.Email);
-                else
-                    contacts.Add(c.Sender.Email);
+                contacts.Add(c);
             }
+
             return View(contacts);
         }
 
@@ -51,35 +53,48 @@ namespace LabProjectsPortal.Controllers
         {
             var user = User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
+            var userApp = _context.Users.Include(c => c.UserReceivedContacts).
+                Include(c => c.UserSentContacts).FirstOrDefault(u => u.Id == userId);
+            
             if (userApp == null)
-                throw new Exception();
-            var emails = _context.Users.Where(u => !u.Id.Equals(userId)).Select(u => u.Email).ToList();
-            return View(emails);
+                return RedirectToAction("NotFound", "Home");
+
+            // take all user ids who the current has already sent or be sent a contact request 
+            var userContactsSent = _context.Contacts.Where(c => c.SenderId == userId).Select(c => c.ReceiverId).ToList();
+            var userContactsReceived = _context.Contacts.Where(c => c.ReceiverId == userId).Select(c => c.SenderId).ToList();
+            var nonAvailableUsers = userContactsReceived.Concat(userContactsSent).ToList();
+            nonAvailableUsers.Add(userId);
+
+            var usernames = _context.Users.Where(u => !nonAvailableUsers.Contains(u.Id)).Select(u => u.UserName).ToList();
+                //_context.Users.Where(u => !u.Id.Equals(userId)).Select(u => u.UserName).ToList();
+            
+            return View(usernames);
         }
 
         // POST: Contacts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Create(string Email)
+        public async Task<IActionResult> Create(string Username)
         {
             var user = User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userApp = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            
             if (userApp == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
-            var receiver = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(Email));
+            var receiver = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(Username));
+            
             if (receiver == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
             var contact = new Contact()
             {
                 Sender = userApp,
                 SenderId = userApp.Id,
                 Receiver = receiver,
-                ReceiverId = userApp.Id
+                ReceiverId = receiver.Id
             };
             _context.Contacts.Add(contact);
             await _context.SaveChangesAsync();
@@ -93,11 +108,11 @@ namespace LabProjectsPortal.Controllers
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userApp = _context.Users.FirstOrDefault(u => u.Id == userId);
             if (userApp == null)
-                throw new Exception();
+                return RedirectToAction("NotFound", "Home");
 
             var dataContext = _context.Contacts
-                .Where(c => !c.IsAccepted && c.Receiver.Id.Equals(userId))
-                .Include(c => c.Sender).ToList();
+                .Where(c => !c.IsAccepted && (c.Receiver.Id.Equals(userId) || c.Sender.Id.Equals(userId)))
+                .Include(c => c.Sender).Include(c => c.Receiver).ToList();
 
             return View(dataContext);
         }
